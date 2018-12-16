@@ -1,0 +1,109 @@
+<!-- PRUTHVI RAJ MUTHYAM
+     1001400715 --->
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1 style = "text-align:center">PRUTHVI RAJ</h1>
+<h2 style = "text-align:center">1001400715</h2>
+<h4>List of avilable files for uploading</h4>
+<form action="/listLocalFiles" method="POST"  >
+<input type="submit" name="listFiles" id="listFiles" value="List files">
+  <select name= files method="GET" action="/">
+    {% for file in files_list %}
+    <option value= "{{file}}" SELECTED>{{file}}</option>"
+    {% endfor %}
+</select>
+</form>
+<hr>
+<h4>Create container</h4>
+<form action="/createcontiner" method="POST"  >
+    <input type="text" id="containername" name="containername" placeholder = "Enter a new container name"/>
+    <input type="submit" name="createcontainer" value="Create" />
+    <br>
+    <p>{{createMes}}</p>
+</form>
+<hr>
+<h4>List Containers</h4>
+<form action="/displaycontainers" method="post" >
+<input type="submit" name="getcontianers" id="getcontianers" value="Display">
+<ul>
+        {% for container in container_list %}
+        <li>{{ container }}</li>
+        {% endfor %}
+</ul>
+</form>
+<hr>
+<h4>Upload a new file</h4>
+<form  action="/upload_file" method="POST" enctype="multipart/form-data"><br>
+
+       <input type="text" id="uploadcontainername" name="uploadcontainername" value=""/><span>Enter a container name</span><br>
+         <input type = "file" name = "file" />
+         <input type = "submit" name="upload" value="Upload"/>
+		 <p>{{msg}}</p>
+
+</form>
+<hr>
+<h4>Display file contents</h4>
+<form  action="/display_file" method="POST"><br>
+        <input type="text" id="uploadcontainername" name="uploadcontainername" value=""/><span>Enter a container name</span><br>
+		<input type="text" id="file-name" name="file-name"/><span>Enter a file name</span><br>
+        <input type = "submit" name="upload" value="Display"/>
+		<p>{{outputMessage}}</p>
+</form>
+<hr>
+<form action="/download_file" method="POST"  >
+        <h4>Downloading file from a container</h4>
+        <input type="text" id="downloadcontainername" name="downloadcontainername" placeholder = "Enter a container name"/>
+        <input type="text" id="downloadingfile" name="downloadingfile" placeholder = "Enter a file name">
+         <br>
+         <input type="submit" name="download" value="Download" />
+         <br>
+</form>
+<hr>
+<h4>Listing files in a container</h4>
+<form action="listfiles" method="post">
+
+    <input type="text" name="conname" id="conname" placeholder = "Enter a container name"/>
+    <input type="text" name="append_name" id="append_name" placeholder = "name to append"/>
+    <input type="submit" id="dispalyfiles" name="Submit">
+    <ul>
+        {% for obj in object_list %}
+        <li>{{ obj }}</li><br>
+        {% endfor %}
+    </ul>
+</form>
+<hr>
+<h4>Delete files of given size</h4>
+<form action="delObject1MB" method = "post">
+    <input type="text" name="fileSize" id="fileSize" ><span>Enter size</span>
+<input type="submit" name="delobj" id="delobj" value="Delete">
+<p>{{deleteMessage}}</p>
+</form>
+<hr>
+<h4>Delete files</h4>
+<form action="deleteobjects" method="post">
+   <input type="text" name="deleteconater" id="deleteconater" ><span>Enter a container name</span>
+   <input type="text" name="objname" id="objname" ><span>Enter a file name</span>
+    <input type="submit" name="delobj" id="delobj" value="Submit">
+    <p>{{fileDel}}</p>
+</form>
+<hr>
+<h4>Delete Container</h4>
+<form action="/deletecontainer" method="post" >
+    <input type="text" name="getdeletecontainer" id="getdeletecontainer" /><span>Enter a container name</span>
+    <input type="submit"  id="delcontainer" name="delcontainer" value="Delete" />
+    <p>{{delMsg}}</p>
+</form>
+<hr>
+<h4>Encrypt</h4>
+<form action="/encryptFile" method="post" >
+    <input type="text" name="key" id="key" /><span>Enter a string</span>
+    <input type="text" name="deleteconater" id="deleteconater" ><span>Enter a container name</span>
+   <input type="text" name="objname" id="objname" ><span>Enter a file name</span>
+    <input type="submit"  id="delcontainer" name="delcontainer" value="submit" />
+    <p>{{encMsg}}</p>
+</form>
+
+</body>

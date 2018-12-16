@@ -1,0 +1,10 @@
+applications:
+- path: .
+  memory: 256M
+  instances: 1
+  domain: mybluemix.net
+  name: bluemixStor
+  host: bluemixStor
+  disk_quota: 1024M
+  services:
+  - Cloud Object Storage-pq
