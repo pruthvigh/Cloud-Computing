@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>view</title>
+</head>
+<body>
+<h2 style = "text-align:center">PRUTHVI RAJ MUTHYAM</h2>
+<h2 style = "text-align:center">1001400715</h2>
+<hr>
+<p><strong>Google App Engine Time:</strong>{{time1}} </p>
+<p><strong>Total Time:</strong>{{time2}} </p>
+<hr>
+  {% for item in data %}
+<img src=" {{ item[5] }}"/>
+<p><strong>File name:</strong>{{item[0]}}</p>
+    <p><strong>Title:</strong>{{item[2]}}</p>
+  <p><strong>Description:</strong>{{item[3]}}</p>
+  <p><strong>Creator:</strong>{{item[4]}}</p>
+<hr>
+      {% endfor %}
+</body>
+</html>

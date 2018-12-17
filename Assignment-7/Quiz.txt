@@ -1,0 +1,206 @@
+
+--->
+Name:PRUTHVI RAJ MUTHYAM
+Last 4 digits ID:0715	
+Computer IP address:10.182.242.97
+CSE 6331, Cloud Computing					
+
+
+Quiz Q7, Spring 2018   (c) DL, UTA, 2018
+
+
+  C&P means cut and paste only those relevant lines from your program(s) into this quiz.
+
+  Summary: initial bottom question 1, rename this as described in question 3, show functionality 
+    through web interface of cloud implementation. Read (entire) quiz before writing.
+
+ 1.  I understand that I am on my honor during this quiz, I will not collaborate, use 
+     non-allowed sources, and I will not discuss or share this quiz with anyone for the next 
+     4 hours.
+     You MAY: use Google to search, use previous source code, 
+     YOU MAY NOT use:
+     Email, Facebook, Hangouts, IM, chats, Skype or ANY other human connection.
+
+     This is a timed test. Late tests will have points deducted for being late.
+     Very late tests will not be graded.
+
+     When you are complete, with any part, please raise your hand, so we may visually inspect that part.
+
+     The second part of the test, you should electronically submit, you will need to copy and paste 
+     only those lines of code to implement that part of the test, usually a few (two to eight) lines of code. 
+     Place it immediately after the question.
+
+     Submit this Quiz (renamed) with code cut and pasted, ONLY text. DO NOT submit zips, binaries, libraries,
+     or anything other than text.
+
+     When any parts(questions) are complete, submit this test, you may make multiple submissions.
+
+     If you have computer, or other, problems, please raise your hand immediately.
+--->
+     If you understand and agree, please initial here:
+     _______PRM__________
+
+ 2. Get files from this same folder.
+   
+ 3. Name your program with your name and last digits of your ID.
+
+ 4. The cloud provider is Google App Engine (GAE), all functionality possible 
+    should be implemented on that provider.
+    (Of course, displaying web pages through a browser and the user interface is "local")
+
+    Please show a web page and interface (which resides on the cloud provider) with your name and 
+    student ID in large font at the top of every web page displayed (for this quiz)
+
+ 5. The descriptions file should be used to create a database (your choice of which, not in-memory).
+    The first line has contains the descriptions: FileName, Year Created, Title, Description, Creator's name.
+    The remaining files are pictures.
+    We wish to select pictures by keywords in the description or by creators name, and display only those pictures
+    on a user's web page. In some cases the descriptions metadata will have missing fields, some file names may not
+    exist. When requested and you  are unable to find results please show: "data unavailable".
+    In some cases we also want to display performance: the time occupied on GAE to recieve and process the query 
+    as well as the user waiting time: that is the time from when a user submits a web based request until she sees
+    the results on her screen. 
+     
+Show and submit code for the following:
+
+ 6. Show a web page and interface (which resides on the cloud provider),
+    Allow a user to select and show all pictures which match a user specified (from web form)
+    keywords in the Description, and show on page. For each picture show the title, and creator's name.
+--> show us, put code here
+python:
+@application.route('/calorieRange', methods=['GET', 'POST'])
+def calories():
+    st = time.time()
+    creator = request.form['creator']
+    des = '%{}%'.format(creator)
+    st1 = time.time()
+    query = "select * from images where Description like %s"
+    cur.execute(query,des)
+    et1 = time.time()
+    data = cur.fetchall()
+    et = time.time()
+    gaptime = et1-st1
+    timediff = et-st
+    return render_template('view.html',data = data,time1 = gaptime,time2 = timediff)
+html:
+ {% for item in data %}
+<img src=" {{ item[5] }}"/>
+    <p><strong>Title:</strong>{{item[2]}}</p>
+  <p><strong>Description:</strong>{{item[3]}}</p>
+  <p><strong>Creator:</strong>{{item[4]}}</p>
+<hr>
+      {% endfor %}
+ 7. In addition to part 6, show GAE processing time and user wait time.
+--> show us, put code here
+<p><strong>Google App Engine Time:</strong>{{time1}} </p>
+<p><strong>Total Time:</strong>{{time2}} </p>
+
+
+ 8. Show a web page and interface (which resides on the cloud provider),
+    Allow a user to select and show all pictures which match a user specified (from web form)
+    creator name and remove (delete) those pictures, and show names (not pictures) of remaining pictures on page. 
+--> show us, put code here
+python:
+@application.route('/delShow', methods=['GET', 'POST'])
+def delShow():
+    st = time.time()
+    global calDel
+    cal = request.form['creator']
+    calDel = cal
+    
+    st1 = time.time()
+    query = "select * from images where Creator = %s"
+    cur.execute(query,cal)
+    et1 = time.time()
+    data = cur.fetchall()
+    et = time.time()
+   
+    return render_template('delete.html',data = data,cal = calDel)
+
+@application.route('/delImages', methods=['GET', 'POST'])
+def delImages():
+    st = time.time()
+    
+    cal = returnCalDel()
+    cal2 = cal
+    print(cal)
+    st1 = time.time()
+    query = "delete from images where Creator = %s"
+    cur.execute(query,cal2)
+    db.commit()
+    query = "select FileName from images"
+    cur.execute(query)
+
+    et1 = time.time()
+    data = cur.fetchall()
+    et = time.time()
+    dm = "images deleted "
+    return render_template('delete.html',dm = data)
+html:
+<p>remaining images</p>
+<p>{{dm}}</p>
+<form action = "/delImages" method = "POST" enctype="multipart/form-data">
+	<input type = "hidden" name = "calval" value = "{{cal}}" />
+	    <input type = "submit" name="login" value="Delete Images"/>
+     
+</form>
+<hr>
+  {% for item in data %}
+<img src=" {{ item[5] }}"/>
+    <p><strong>Title:</strong>{{item[2]}}</p>
+  <p><strong>Description:</strong>{{item[3]}}</p>
+  <p><strong>Creator:</strong>{{item[4]}}</p>
+<hr>
+      {% endfor %}
+ 9. Show a web page and interface (which resides on the cloud provider),
+    Allow a user to select and show all pictures which match a user specified (from web form)
+    keyword in the Description and allow a user to rename those pictures, and show all pictures,
+    titles, and creator's name on page. 
+    Show GAE processing time and user wait time.
+--> show us, put code here
+python:
+@application.route('/rename', methods=['GET', 'POST'])
+def rename():
+    st = time.time()
+    desc = '%{}%'.format(request.form['desc'])
+    rename = request.form['rename']
+    st1 = time.time()
+    query = "update images set FileName = %s where Description like %s"
+    cur.execute(query,(rename,desc))
+    db.commit()
+    et1 = time.time()
+    data = cur.fetchall()
+    
+    query3 = "select * from images"
+    cur.execute(query3)
+    data = cur.fetchall()
+    et = time.time()
+    gaptime = et1-st1
+    timediff = et-st
+    return render_template('view.html',data = data,time1 = gaptime,time2 = timediff)
+html:
+<form action = "/rename" method = "POST" enctype="multipart/form-data">
+    
+         <input type="text" name="desc" placeholder = "Enter a description"/>
+         <input type="text" name="rename" placeholder = "Enter a name to replace"/>
+    
+    <input type = "submit" name="login" value="submit"/>
+        
+
+
+</form>
+<p><strong>Google App Engine Time:</strong>{{time1}} </p>
+<p><strong>Total Time:</strong>{{time2}} </p>
+<hr>
+  {% for item in data %}
+<img src=" {{ item[5] }}"/>
+<p><strong>File name:</strong>{{item[0]}}</p>
+    <p><strong>Title:</strong>{{item[2]}}</p>
+  <p><strong>Description:</strong>{{item[3]}}</p>
+  <p><strong>Creator:</strong>{{item[4]}}</p>
+<hr>
+      {% endfor %}
+
+ Done. When complete, return (send) this quiz
+     If you finish early, send this immediately, otherwise send between
+     the end of class and no more than 1 minute after that.
