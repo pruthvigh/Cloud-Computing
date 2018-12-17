@@ -1,6 +1,6 @@
 # Cloud Computing - Programming Assignments & Quizzes
 
-This repository contains all the programming assignments and quizzes for the Cloud Computing Course at The University of Texas, Arlington. All applications are developed using Python Flask. Depending on the cloud provider and the service you're using, you'll have to configure the security credentials accordingly. 
+This repository contains all the programming assignments and quizzes for the Cloud Computing course at The University of Texas, Arlington. All applications are developed using Python Flask. Depending on the cloud provider and the service you're using, you'll have to configure the security credentials accordingly. 
 
 ## Run the app locally
 

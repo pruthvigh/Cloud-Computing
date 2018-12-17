@@ -1,0 +1,362 @@
+
+Name:PRUTHVI RAJ MUTHYAM
+Last 4 digits ID:0715
+Computer IP address:
+CSE 6331, Cloud Computing					
+
+
+Quiz Q2, Spring 2018   (c) DL, UTA, 2018
+
+
+  C&P means cut and paste only those relevant lines from your program(s) into this quiz.
+
+  Summary: initial bottom question 1, rename this as described in question 3, show functionality 
+    through web interface of cloud implementation. Read (entire) quiz before writing.
+
+ 1.  I understand that I am on my honor during this quiz, I will not collaborate, use 
+     non-allowed sources, and I will not discuss or share this quiz with anyone for the next 
+     4 hours.
+     You MAY: use Google to search, use previous source code, 
+     YOU MAY NOT use:
+     Email, Facebook, Hangouts, IM, chats, Skype or ANY other human connection.
+
+     This is a timed test. Late tests will have points deducted for being late.
+     Very late tests will not be graded.
+
+     When you are complete, with any part, please raise your hand, so we may visually inspect that part.
+
+     The second part of the test, you should electronically submit, you will need to copy and paste 
+     only those lines of code to implement that part of the test, usually a few (two to eight) lines of code. 
+     Place it immediately after the question.
+
+     Submit this Quiz (renamed) with code cut and pasted, ONLY text. DO NOT submit zips, binaries, libraries,
+     or anything other than text.
+
+     When any parts(questions) are complete, submit this test, you may make multiple submissions.
+
+     If you have computer, or other, problems, please raise your hand immediately.
+
+     If you understand and agree, please initial here:
+     __________PM_______
+
+ 2. Get files from this same folder.
+   
+ 3. Name your program with your name and last digits of your ID.
+
+ 4. The cloud provider is AWS (Amazon Web Services), all functionality possible should be implemented on that provider.
+    (Of course, displaying web pages through a browser and the user interface is "local")
+
+Show and submit code:
+
+ 5. Show a web page and interface (which resides on the cloud provider) with your name and 
+    student ID in large font at the top of every web page displayed (for this quiz)
+html:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+	<h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+<h1 style = "text-align:center">Sign in </h1>
+<hr>
+<form action = "/userLogin" method = "POST" enctype="multipart/form-data">
+         <input type="text" id="username" name="username" placeholder = "Enter a Username"/>
+         <input type = "submit" name="login" value="Login"/>
+         <p><strong>{{error_msg}}</strong></p>
+</form>
+</body>
+</html>
+
+ 6. Upload the .txt data files to cloud service. If you have difficulty reading or using 
+    the .txt files you may reformat or change them AS LONG AS THE CONTENT and layout remain the same.    
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg','txt'])#'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@application.route('/uploadPhotos', methods=['GET', 'POST'])
+def uploadPhoto():
+    #  print(index().name)
+    if request.method == 'POST':
+        if 'name' in session:
+            username = session['name']
+        if 'file' not in request.files:
+            # flash('No file part')
+            return render_template("homepage.html", msg="No file part", user_name=username)
+        f = request.files['file']
+        if f.filename == '':
+            return render_template("homepage.html", msg="No selected file", user_name=username)
+        if f and allowed_file(f.filename):
+
+           s3Client.upload_fileobj(
+            f,
+            'aws-photo-bucket',
+            f.filename,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": f.content_type
+            }
+        )
+        else:
+            return render_template("homepage.html", msg="Only images are allowed to upload", user_name=username)
+        url = "{}{}".format(S3_LOCATION, f.filename)
+        title_form = request.form['title']
+        print(url, title_form)
+        # timestamp of files:
+        for key in s3Client.list_objects(Bucket='aws-photo-bucket')['Contents']:
+            #    print key
+            filename = key['Key']
+            date = key['LastModified']
+            # print(date)
+
+        sqlq = "INSERT INTO images(img_url,title,likes,stars,timestamp,user_name) VALUES (%s,%s,%s,%s,%s,%s)"
+        print(sqlq)
+        cur.execute(sqlq, (url, title_form, 0, 0, date,username))
+        db.commit()
+    return render_template("homepage.html", msg="Image uploaded suceesfully",user_name=username)
+
+html:
+</form>
+<h1 style = "text-align:center">Picture viewing for {{user_name}}</h1>
+<hr>
+<form action = "/uploadPhotos" method = "POST" enctype="multipart/form-data">
+    <h2>Upload new photos</h2>
+         <input type="text" id="title" name="title" placeholder = "Enter a title"/>
+         <input type = "file" name = "file" />
+         <input type = "submit" name="upload" value="Upload"/>
+         <p>{{msg}}</p>
+         <p><strong>{{error_msg}}</strong></p>
+
+
+</form>
+
+You will create a picture submission and viewing site, similar to your assignment.
+
+ 7. Create a SQL table with the information in UsersAccess, these user names are the only names you  
+    will allow to login and use your service. The first string in each tuple is a user login name, 
+    the second is the maximum number of pictures that person is allowed to view, and the last value is 
+    the maximum picture size that is allowed to be uploaded by that person (in KB).
+-> put code here
+@app.route('/createtable',methods=['POST'])
+def createtable():
+    cursor = myConn.cursor()
+    file_name = 'C:/Users/Administrator/Desktop/users.csv'
+    # file_name = 'home/ubuntu/flaskapp/data.csv'
+    table_name = 'testdata'
+    #droptbl = "DROP TABLE IF EXISTS photodb.UsersAccess;"
+    #cursor.execute(droptbl)
+    with open(file_name, 'r') as csvfile:
+        reader = csv.reader(csvfile,quotechar='`')
+        headers = next(reader)
+    
+    start_time = time.time()
+    
+    sqlcreate="create table if not exists UsersAccess("
+    for i in range(0, len(headers)):
+         sqlcreate +=  headers[i] + " varchar(100),"
+    sqlcreate += "Idautonum int AUTO_INCREMENT PRIMARY KEY)"
+    cursor.execute(sqlcreate)
+    
+    uploadqry="""LOAD DATA LOCAL INFILE 'C:/Users/Administrator/Desktop/users.csv'
+          INTO TABLE UsersAccess FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r' IGNORE 1 ROWS;"""
+    cursor.execute(uploadqry)
+    myConn.commit()
+    
+    
+    cursor.close()
+    return render_template('index.html')
+html:
+<form action="/createtable" method="post" enctype="multipart/form-data">
+        Create the table in the RDS in AWS:
+        <input type="submit" value="Create"> 
+        
+    </form>
+
+ 8. Create a web interface to allow a user to login (no password) and show the seir.jpg at the page top,
+    the users name (login name), your name and last 4 digits of your student id
+-> show us, put code here
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg','txt'])#'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@application.route('/uploadPhotos', methods=['GET', 'POST'])
+def uploadPhoto():
+    #  print(index().name)
+    if request.method == 'POST':
+        if 'name' in session:
+            username = session['name']
+        if 'file' not in request.files:
+            # flash('No file part')
+            return render_template("homepage.html", msg="No file part", user_name=username)
+        f = request.files['file']
+        if f.filename == '':
+            return render_template("homepage.html", msg="No selected file", user_name=username)
+        if f and allowed_file(f.filename):
+
+           s3Client.upload_fileobj(
+            f,
+            'aws-photo-bucket',
+            f.filename,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": f.content_type
+            }
+        )
+        else:
+            return render_template("homepage.html", msg="Only images are allowed to upload", user_name=username)
+        url = "{}{}".format(S3_LOCATION, f.filename)
+        title_form = request.form['title']
+        print(url, title_form)
+        # timestamp of files:
+        for key in s3Client.list_objects(Bucket='aws-photo-bucket')['Contents']:
+            #    print key
+            filename = key['Key']
+            date = key['LastModified']
+            # print(date)
+
+        sqlq = "INSERT INTO images(img_url,title,likes,stars,timestamp,user_name) VALUES (%s,%s,%s,%s,%s,%s)"
+        print(sqlq)
+        cur.execute(sqlq, (url, title_form, 0, 0, date,username))
+        db.commit()
+    return render_template("homepage.html", msg="Image uploaded suceesfully",user_name=username)
+
+html:
+</form>
+<h1 style = "text-align:center">Picture viewing for {{user_name}}</h1>
+<hr>
+<form action = "/uploadPhotos" method = "POST" enctype="multipart/form-data">
+    <h2>Upload new photos</h2>
+         <input type="text" id="title" name="title" placeholder = "Enter a title"/>
+         <input type = "file" name = "file" />
+         <input type = "submit" name="upload" value="Upload"/>
+         <p>{{msg}}</p>
+         <p><strong>{{error_msg}}</strong></p>
+
+
+</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+	<h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+<h1 style = "text-align:center">Sign in </h1>
+<hr>
+
+ 9. Allow a user to select from the (local) .jpg files and upload only those and save the users name, 
+    picture name, and time picture was uploaded in a SQL table. (and save the picture somewhere)
+@application.route('/uploadPhotos', methods=['GET', 'POST'])
+def uploadPhoto():
+    #  print(index().name)
+    if request.method == 'POST':
+        if 'name' in session:
+            username = session['name']
+        if 'file' not in request.files:
+            # flash('No file part')
+            return render_template("homepage.html", msg="No file part", user_name=username)
+        f = request.files['file']
+        if f.filename == '':
+            return render_template("homepage.html", msg="No selected file", user_name=username)
+        if f and allowed_file(f.filename):
+
+           s3Client.upload_fileobj(
+            f,
+            'aws-photo-bucket',
+            f.filename,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": f.content_type
+            }
+        )
+        else:
+            return render_template("homepage.html", msg="Only images are allowed to upload", user_name=username)
+        url = "{}{}".format(S3_LOCATION, f.filename)
+        title_form = request.form['title']
+        print(url, title_form)
+        # timestamp of files:
+        for key in s3Client.list_objects(Bucket='aws-photo-bucket')['Contents']:
+            #    print key
+            filename = key['Key']
+            date = key['LastModified']
+            # print(date)
+
+        sqlq = "INSERT INTO images(img_url,title,likes,stars,timestamp,user_name) VALUES (%s,%s,%s,%s,%s,%s)"
+        print(sqlq)
+        cur.execute(sqlq, (url, title_form, 0, 0, date,username))
+        db.commit()
+    return render_template("homepage.html", msg="Image uploaded suceesfully",user_name=username)
+html:
+<body>
+    <h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+<form action = "/logout" method = "POST" enctype="multipart/form-data">
+    <input style = "float:right" type = "submit" name="upload" value="Log out"/>
+</form>
+<h1 style = "text-align:center">Picture viewing for {{user_name}}</h1>
+<hr>
+<form action = "/uploadPhotos" method = "POST" enctype="multipart/form-data">
+    <h2>Upload new photos</h2>
+         <input type="text" id="title" name="title" placeholder = "Enter a title"/>
+         <input type = "file" name = "file" />
+         <input type = "submit" name="upload" value="Upload"/>
+         <p>{{msg}}</p>
+         <p><strong>{{error_msg}}</strong></p>
+
+
+</form>
+
+ 10. Display ALL pictures allowed (restricted by the table above for that user) in time uploaded order,
+     display any picture regardless of who uploaded it (up to the limit), with picture name,
+     and time and date created. 
+-> show us, put code here
+
+ 11. Allow the user to modify the maximum number of pictures that person is allowed to view.
+     Allow the user to remove (delete) any selected picture.
+-> show us, put code here
+@application.route('/deleteImage', methods=['GET'])
+def deleteImg():
+    img_id = request.args['image_id']
+    query = "select img_url from images where img_id=%s"
+    cur.execute(query,img_id)
+    data = cur.fetchall()
+    file_name = data[0][0].split('/')
+    img_name = file_name[3]
+    s3Client.delete_object(
+        Bucket='aws-photo-bucket',
+        Key=img_name
+    )
+    query2 = "delete from images where img_id=%s"
+    cur.execute(query2,img_id)
+    db.commit()
+    query3= "SELECT * from images"
+    cur.execute(query3)
+    data = cur.fetchall()
+    return render_template("view.html", data=data,msg="Image deleted successfully")
+html:
+<input type = "button" name = "delete_{{item[0]}}" value = "Delete image">
+jquery:
+$( "input[value*='Delete image']" ).click(function(event) {
+
+
+         var id = $(this)[0].name.split("_")[1];
+
+         $.get("/deleteImage", { image_id:id } , function(data,status,xhr){
+            window.location.reload(true);
+         },"text");
+
+      });
+
+ Bonus: Allow any user, using a web form interface, to modify the UsersAccess table: add additional users,
+     or maximum number of pictures that a person is allowed to view, or the maximum picture size
+-> show us, put code here
+
+ 12. When complete, return (send) this quiz
+     If you finish early, send this immediately, otherwise send between
+     the end of class and no more than 1 minute after that.

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+<form action = "/logout" method = "POST" enctype="multipart/form-data">
+    <input style = "float:right" type = "submit" name="upload" value="Log out"/>
+</form>
+<h1 style = "text-align:center">Picture viewing for {{user_name}}</h1>
+<hr>
+<form action = "/uploadPhotos" method = "POST" enctype="multipart/form-data">
+    <h2>Upload new photos</h2>
+         <input type="text" id="title" name="title" placeholder = "Enter a title"/>
+         <input type = "file" name = "file" />
+         <input type = "submit" name="upload" value="Upload"/>
+         <p>{{msg}}</p>
+         <p><strong>{{error_msg}}</strong></p>
+
+
+</form>
+<form action = "/viewphotos" method = "POST" enctype="multipart/form-data">
+    <h2>View Photo Album</h2>
+         <input type = "submit" name="View" value="View"/>
+
+
+
+</form>
+</body>
+</html>

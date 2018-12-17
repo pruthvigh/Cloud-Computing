@@ -1,0 +1,90 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>view</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+   <script>
+      /*var $ = function (id) {
+      return document.getElementById(id);
+  }
+  var i=1;
+  var increment = function () {
+      $("like").value = "Likes: " + i;
+      i++;
+  }
+  window.onload = function () {
+      $("like").onclick = increment;
+  }*/
+  $( document ).ready(function() {
+
+      $( "input[value*='Like']" ).click(function(event) {
+
+
+         var id = $(this)[0].name.split("_")[1];
+
+         $.get("/like", { image_id:id } , function(data,status,xhr){
+            window.location.reload(true);
+         },"text");
+
+      });
+
+      $( "input[value*='Delete image']" ).click(function(event) {
+
+
+         var id = $(this)[0].name.split("_")[1];
+
+         $.get("/deleteImage", { image_id:id } , function(data,status,xhr){
+            window.location.reload(true);
+         },"text");
+
+      });
+
+      $( "input[value*='update']" ).click(function(event) {
+                var id = $(this)[0].name.split("_")[1];
+                var rating = $('input[name="star"]:checked').val();
+                var data = { image_id : id , rating_form : rating };
+                $.get("/rating", data  , function(data,status,xhr){
+                  window.location.reload(true);
+               },"text");
+      });
+  });
+  </script>
+
+  </head>
+  </head>
+  <body>
+    <h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+  <form action = "/logout" method = "POST" enctype="multipart/form-data">
+    <input style = "float:right" type = "submit" name="upload" value="Log out"/>
+</form>
+<h1 style = "text-align:center">Picture viewing for {{user_name}}</h1>
+  <p>{{msg}}</p>
+<hr>
+  {% for item in data %}
+  <img src=" {{ item[1] }}"/>
+  <p><strong>Title:</strong>{{item[2]}}</p>
+  <p><strong>Last updated:</strong>{{item[5]}} GMT</p>
+  <input type="button" value="Like" name="like_{{item[0]}}" /><span>{{item[3]}}</span> <p hidden>star = {{item[2]}}</p>
+  <p><strong>Current Rating:</strong>{{item[4]}}</p>
+
+
+    <input type="radio" name="star" value="1"> 1
+    <input type="radio" name="star" value="2"> 2
+    <input type="radio" name="star" value="3"> 3
+     <input type="radio" name="star" value="4"> 4
+     <input type="radio" name="star" value="5"> 5
+    <input type="button" name="rating_{{item[0]}}" value="update">
+   <input type = "button" name = "delete_{{item[0]}}" value = "Delete image">
+  <form action = "/updateRadio" method = "POST">
+
+  </form>
+<hr>
+
+      {% endfor %}
+
+  </form>
+
+  </body>
+  </html>
