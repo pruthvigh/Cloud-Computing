@@ -1,0 +1,41 @@
+
+<!--
+   PRUTHVI RAJ MUTHYAM
+   1001400715 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+    <hr>
+<form action="/createtable" method="post" enctype="multipart/form-data">
+        <strong>Upload data to database:</strong>
+       
+        <input type="submit" value="Upload"><br>
+         <p><b>Time taken: </b></p><p>{{ crtimerds }}  </p>
+        <p style = "color: red">{{success}}</p>
+    </form>
+<hr>
+<form action="/bar2" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat1" placeholder="Enter latitude value">
+  <input type="text" name="lat2" placeholder="Enter latitude value">
+  <input type="text" name="lon1" placeholder="Enter longitude value">
+  <input type="text" name="lon2" placeholder="Enter longitude value">
+  <input type="text" name="code" placeholder="Enter country code">
+ <input type="submit" value="Submit">
+</form>
+<hr>
+
+<form action="/vote" method="post" enctype="multipart/form-data">
+  <input type="text" name="pop1" placeholder="Enter no of people voted">
+  <input type="text" name="pop2" placeholder="Enter no of people voted">
+  
+ <input type="submit" value="Submit">
+</form>
+ 
+</body>
+</html>

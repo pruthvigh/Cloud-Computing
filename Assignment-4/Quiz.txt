@@ -1,0 +1,346 @@
+
+--->
+Name:PRUTHVI RAJ MUTHYAM
+Last 4 digits ID:0715
+Computer IP address:129.107.80.149
+CSE 6331, Cloud Computing					
+
+
+Quiz Q4, Spring 2018   (c) DL, UTA, 2018
+
+
+  C&P means cut and paste only those relevant lines from your program(s) into this quiz.
+
+  Summary: initial bottom question 1, rename this as described in question 3, show functionality 
+    through web interface of cloud implementation. Read (entire) quiz before writing.
+
+ 1.  I understand that I am on my honor during this quiz, I will not collaborate, use 
+     non-allowed sources, and I will not discuss or share this quiz with anyone for the next 
+     4 hours.
+     You MAY: use Google to search, use previous source code, 
+     YOU MAY NOT use:
+     Email, Facebook, Hangouts, IM, chats, Skype or ANY other human connection.
+
+     This is a timed test. Late tests will have points deducted for being late.
+     Very late tests will not be graded.
+
+     When you are complete, with any part, please raise your hand, so we may visually inspect that part.
+
+     The second part of the test, you should electronically submit, you will need to copy and paste 
+     only those lines of code to implement that part of the test, usually a few (two to eight) lines of code. 
+     Place it immediately after the question.
+
+     Submit this Quiz (renamed) with code cut and pasted, ONLY text. DO NOT submit zips, binaries, libraries,
+     or anything other than text.
+
+     When any parts(questions) are complete, submit this test, you may make multiple submissions.
+
+     If you have computer, or other, problems, please raise your hand immediately.
+--->
+     If you understand and agree, please initial here:
+     ___________PM______
+
+ 2. Get files from this same folder.
+   
+ 3. Name your program with your name and last digits of your ID.
+
+ 4. The cloud provider is AWS (Amazon Web Services), all functionality possible should be implemented on that provider.
+    (Of course, displaying web pages through a browser and the user interface is "local")
+
+ 5. Upload the .csv data files to cloud service. Once they are in the cloud service you will import them into
+    SQL tables, created and indexed as necessary (for the following parts). 
+    The Starbucks data set are most of the Starbucks in the world, with a city, state, country, latitude, longitude,
+    and time zone (minutes from GMT (Z-time)). Some names will not be in English (Latin) fonts.
+    The StateVotingClean (or StateVoting) are the states (in alphabetical order, from Alabama to Wyoming, 
+    don't include other information), total state population, voting population, number registered voters, 
+    percent registered, number voted, percent voted.
+  
+ 6. Create SQL tables with the information in datasets.
+-> put code here
+python code:
+sqlcreate="create table if not exists statevoting("
+    for i in range(0, len(headers)):
+         sqlcreate +=  headers[i] + " varchar(100),"
+    sqlcreate += "Idautonum int AUTO_INCREMENT PRIMARY KEY)"
+    cursor.execute(sqlcreate)
+    
+    uploadqry="""LOAD DATA LOCAL INFILE 'C:/Users/Administrator/Desktop/StateVotingClean.csv'
+          INTO TABLE statevoting FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;"""
+    cursor.execute(uploadqry)
+    myConn.commit()
+Show and submit code for the following:
+
+ 7. Show a web page and interface (which resides on the cloud provider) with your name and 
+    student ID in large font at the top of every web page displayed (for this quiz),
+    For first screen show above and: average (mean) population using state voting for all states, as well as
+    total number voted. 
+--> show us, put code here
+
+ 8. Show a pie chart for percent voted, from  to 40 to 75 percent in groups of 5 percent 
+    (40 to 45 percent, 45 to 50, 50 to 55, etc, up to 70 to 75 percent, in total 7 groups)  
+--> show us, put code here
+Jquery code:
+<script type="text/javascript">
+$(document).ready(function() {	
+
+var options = {
+chart: {
+renderTo: 'container',
+type: 'pie'
+},
+
+plotOptions: {
+pie: {
+borderColor: '#000000',
+allowPointSelect: true,
+cursor: 'pointer',
+dataLabels: {
+enabled: true,
+color: '#ffffff',
+
+/*	formatter: function() {
+return + this.y +' ';
+}*/
+formatter: function() {
+return '<b>'+ this.point.name +'</b>: '+ this.y +' ';
+}	
+
+}
+title: {
+text: 'Pie Chart'
+},
+series: [{
+data:[]
+}]
+};
+
+/*
+Load the data from the CSV file. 
+*/ 
+//var fno = {{fileno}};
+      // var fname = fno.toString();
+       //var filename = '/static/data'+fname+'.csv';
+$.get('/static/data3.csv', function(data) {
+// Split the lines
+var lines = data.split('\n');
+
+// Iterate over the lines and add categories or series
+$.each(lines, function(lineNo, line) {
+var items = line.split(',');
+
+console.log("items items"+items)
+// header line containes categories
+if (lineNo > 0) {
+
+options.series[0].data.push([items[0],parseFloat(items[1])]);
+
+
+}
+
+});
+
+// Create the chart
+var chart = new Highcharts.Chart(options);
+});
+
+}); 
+
+</script>
+ 9. Create a web interface to allow a user to specify a low value (L) a high value (H) and a percent (P) 
+    and repeat the previous part, creating a pie chart from L to H in groups of P.
+--> show us, put code here
+low = request.form['pop1']
+   high = request.form['pop2']
+   percent = request.form['pop3']
+   
+   pop = 0
+   for i in range(0,int((int(high)-int(low))/int(percent))):
+         sqlq = "SELECT (PercentVote),PercentVote FROM statevoting where PercentVote between %s and %s"
+         res = cursor.execute(sqlq, (low,int(low)+int(percent)))
+   
+         data = cursor.fetchall()
+         fno = int(random.randrange(500,1000))
+         myFile = open('./static/data996.csv', 'w',newline='')
+         with myFile:
+               cw = csv.writer(myFile)
+               print("in file write")
+               cw.writerow([i[0] for i in cursor.description])
+               cw.writerows(data)
+   cursor.close()
+   myConn.close()
+Jquery code:
+<script type="text/javascript">
+$(document).ready(function() {	
+
+var options = {
+chart: {
+renderTo: 'container',
+type: 'pie'
+},
+
+plotOptions: {
+pie: {
+borderColor: '#000000',
+allowPointSelect: true,
+cursor: 'pointer',
+dataLabels: {
+enabled: true,
+color: '#ffffff',
+
+/*	formatter: function() {
+return + this.y +' ';
+}*/
+formatter: function() {
+return '<b>'+ this.point.name +'</b>: '+ this.y +' ';
+}	
+
+}
+title: {
+text: 'Pie Chart'
+},
+series: [{
+data:[]
+}]
+};
+
+/*
+Load the data from the CSV file. 
+*/ 
+//var fno = {{fileno}};
+      // var fname = fno.toString();
+       //var filename = '/static/data'+fname+'.csv';
+$.get('/static/data3.csv', function(data) {
+// Split the lines
+var lines = data.split('\n');
+
+// Iterate over the lines and add categories or series
+$.each(lines, function(lineNo, line) {
+var items = line.split(',');
+
+console.log("items items"+items)
+// header line containes categories
+if (lineNo > 0) {
+
+options.series[0].data.push([items[0],parseFloat(items[1])]);
+
+
+}
+
+});
+
+// Create the chart
+var chart = new Highcharts.Chart(options);
+});
+
+}); 
+
+</script>
+ 10. Create a vertical bar graph that shows the total registered for all states (ie, the number of states) for
+    0 to 1 million, 1 to 2 million, up to 8 and more million registered voters, show legend (amounts) inside each bar.
+--> show us, put code here
+python:
+pop = 0
+   for i in range(0 to 5):
+         sqlq = "SELECT SUM(Registered) FROM statevoting where TotalPop between %s and %s"
+         res = cursor.execute(sqlq, (pop,pop+2000))
+   
+         data = cursor.fetchall()
+         fno = int(random.randrange(500,1000))
+         myFile = open('./static/data'+str(fno)+'.csv', 'w',newline='')
+         with myFile:
+               cw = csv.writer(myFile)
+               print("in file write")
+               cw.writerow([i[0] for i in cursor.description])
+               cw.writerows(data)
+Highcharts plugin code:
+<script type="text/javascript">
+    $(document).ready(function() {
+      
+      var options = {
+        chart: {
+          renderTo: 'container',
+          type: 'column'
+        },
+        title: {
+          text: 'Bar Graph'
+        },
+        xAxis: {
+          categories: []
+        },
+        yAxis: {
+          title: {
+            text: 'Registered'
+          }
+        },
+        series: []
+      };
+      
+      /*
+       Load the data from the CSV file. This is the contents of the file:
+       
+        Apples,Pears,Oranges,Bananas,Plums
+        John,8,4,6,5
+        Jane,3,4,2,3
+        Joe,86,76,79,77
+        Janet,3,16,13,15
+        
+       */ 
+       var fno = {{fileno}};
+        var fname = fno.toString();
+       var filename = '/static/data'+fname+'.csv';
+       //console.log('/static/data333.csv'+filename)
+      $.get( filename, function(data) {
+        // Split the lines
+        var lines = data.split('\n');
+        $.each(lines, function(lineNo, line) {
+          //var items2 = line.split([',',',"']);
+          var items = line.split(','); 
+          //line.split(',');
+          
+          // header line containes categories
+          if (lineNo == 0) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo > 0) options.xAxis.categories.push(item);
+            });
+          }
+          
+          // the rest of the lines contain data with their name in the first position
+          else {
+            var series = { 
+              data: []
+            };
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) {
+                series.name = item;
+              } else {
+                series.data.push(parseFloat(item));
+              }
+            });
+            
+            options.series.push(series);
+          }
+          
+        });
+        
+        var chart = new Highcharts.Chart(options);
+      });
+      
+      
+    });
+    </script>
+ 11. Using the Starbucks data, create a web interface to allow a user to specify a low value (L) a high value (H) 
+     for the timezone, count number of Starbucks in intervals of 10 (number of Starbucks from L to L+10, L+11 to L+20,
+     up to H), and show a scatter or point chart where timezone is on x axis and number of store on the y axis.
+--> show us, put code here
+
+ 12. On March 2, AWS was down from 8:00 to 8:10 and again from 10:00 to 12:00 (both in the morning). 
+     Assuming no other down time, Considering ONLY the time from midnight March 1, until midnight tonight
+     (7 days, 24 hours each day), 
+     what was the MTTF (show calculations)?
+-->answer here
+     What was the availability (show calculations)?
+-->answer here
+
+ Done. When complete, return (send) this quiz
+     If you finish early, send this immediately, otherwise send between
+     the end of class and no more than 1 minute after that.
