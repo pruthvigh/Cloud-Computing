@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+    $( document ).ready(function() {
+
+      $( "input[value*='update name']" ).click(function(event) {
+
+
+         var id = $(this)[0].name.split("_")[1];
+        var new_name = $('input[name="namefield"]').val();
+        var data = { sid:id,nname:new_name };
+         $.get("/updatename", data , function(data,status,xhr){
+            window.location.reload(true);
+         },"text");
+
+      });
+
+    
+  });
+  </script>
+</head>
+<body>
+    <h1 style="text-align: center">PRUTHVI RAJ MUTHYAM</h1>
+    <h1 style="text-align: center">1001400715</h1>
+    <hr>
+    <h2 style="text-align: center">LOAD DATA INTO DATABASE</h2>
+<form action="/createtable" method="post" enctype="multipart/form-data">
+        <strong>Upload data to database:</strong>
+       
+        <input type="submit" value="Upload"><br>
+         <p><b>Time taken: </b> {{ crtimerds }}  </p>
+         <p><b>No of rows inserted: </b>{{ nr }}  </p>
+        <p style = "color: red">{{success}}</p>
+    </form>
+<hr>
+
+<form action="/innerjoin" method="post" enctype="multipart/form-data">
+        
+       
+        <input type="submit" value="Runjoin"><br>
+         <p><b>Time taken: </b> {{ timejoin}}  </p>
+         
+         <table>
+ <b>Row count: </b>{{ joinrows }}
+     {% for col in resujoin %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+    </form>
+<hr>
+
+
+
+
+
+ <form action="/fetch" method="post" enctype="multipart/form-data">
+  <input type="text" name="sat1" placeholder="Enter sat  value">
+  <input type="text" name="sat2" placeholder="Enter sat value">
+  <input type="text" name="city" placeholder="Enter cit name">
+ 
+ <input type="submit" value="Submit">
+ <p><b>Time taken: </b> {{tt}}  </p>
+ <table>
+ <b>Row count: </b>{{ count }}
+     {% for col in res %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+<hr>
+
+<form action="/delcache" method="post" enctype="multipart/form-data">
+        
+       
+        <input type="submit" value="Delete Cache">
+    </form>
+    <p>{{cd}}</p>
+     </form>
+     <hr>
+ <h2 style="text-align: center">MEMCACHE</h2>
+ <form action="/memc" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat1" placeholder="Enter latitude value">
+  <input type="text" name="lat2" placeholder="Enter latitude value">
+  <input type="text" name="lon1" placeholder="Enter longitude value">
+  <input type="text" name="lon2" placeholder="Enter longitude value">
+   <input type="text" value="" name="ccode" placeholder="counry code">
+  
+ <input type="submit" value="Fetch results">
+ <p><b>Time taken: </b> {{tt}} </p>
+ <p><b>In memcache: </b> {{foundm}} </p>
+ <table>
+ <b>Row count: </b>{{ countr }}
+     {% for col in resu %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     <hr>
+     <h2 style="text-align: center">RUN RANDOM QUERIES</h2>
+     <form action="/random" method="post" enctype="multipart/form-data">
+  <input type="text" name="count" placeholder="Enter a count">
+  
+ <input type="submit" value="Run">
+ <p><b>Time taken: </b> {{ttr}} </p>
+ <table>
+ <b>Row count: </b>{{ countrr }}
+     {% for col in resur %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+     <hr>
+     <h2 style="text-align: center">RUN RANDOM QUERIES - RESTRICTED</h2>
+ <form action="/random2" method="post" enctype="multipart/form-data">
+  <input type="text" name="count" placeholder="Enter a count value">
+  
+ <input type="submit" value="Run">
+ <p><b>Time taken: </b> {{tt2}} </p>
+ <table>
+ <b>Row count: </b>{{ countr2 }}
+     {% for col in resu2 %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+     <hr>
+     <h2 style="text-align: center">UPDATE MULTIPLE ROWS</h2>
+    <form action="./updaterows" method="POST" enctype="multipart/form-data">
+          <input type="text" value="" name="lat_1" placeholder="lat1">
+          <input type="text" value="" name="lat_2" placeholder="lat2">
+          <input type="text" value="" name="ccode" placeholder="counry code">
+          
+          <input type="text" value="" name="name" placeholder="New name">
+
+          <input type="submit" value="Update">
+        </form> 
+        <p style = "color: red">{{msg}}</p>
+     
+    <hr>
+     <h2 style="text-align: center">UPDATE SINGLE ROW</h2>
+    <form action="./updaterowssingle" method="POST" enctype="multipart/form-data">
+          <input type="text" value="" name="lat_1" placeholder="lat1">
+          <input type="text" value="" name="lat_2" placeholder="lat2">
+          <input type="text" value="" name="ccode" placeholder="counry code">
+          <input type="submit" value="Submit">
+          <p>{{nameup}}</p>
+        </form> 
+        {% for item in data %}
+      <br>
+      <input type = "text" value = '{{item[1]}}' name = "namefield" >
+      <input type="button" name="name_{{item[0]}}" value="update name">
+    
+      {% endfor %}
+      <hr>
+     <h2 style="text-align: center">CREATE INDEX</h2>
+    <form action="./createindex" method="POST" enctype="multipart/form-data">
+          <input type="text" value="" name="table" placeholder="Enter a table name">
+          <input type="text" value="" name="column" placeholder="Enter a column name">
+          <input type="submit" value="Create">
+          <p>{{inmes}}</p>
+        </form> 
+</body>
+</html>

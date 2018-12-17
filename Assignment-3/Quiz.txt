@@ -1,0 +1,416 @@
+
+--->
+Name:PRUTHVI RAJ MUTHYAM
+Last 4 digits ID:0715
+Computer IP address:10.182.242.97
+CSE 6331, Cloud Computing					
+
+
+Quiz Q3, Spring 2018   (c) DL, UTA, 2018
+
+
+  C&P means cut and paste only those relevant lines from your program(s) into this quiz.
+
+  Summary: initial bottom question 1, rename this as described in question 3, show functionality 
+    through web interface of cloud implementation. Read (entire) quiz before writing.
+
+ 1.  I understand that I am on my honor during this quiz, I will not collaborate, use 
+     non-allowed sources, and I will not discuss or share this quiz with anyone for the next 
+     4 hours.
+     You MAY: use Google to search, use previous source code, 
+     YOU MAY NOT use:
+     Email, Facebook, Hangouts, IM, chats, Skype or ANY other human connection.
+
+     This is a timed test. Late tests will have points deducted for being late.
+     Very late tests will not be graded.
+
+     When you are complete, with any part, please raise your hand, so we may visually inspect that part.
+
+     The second part of the test, you should electronically submit, you will need to copy and paste 
+     only those lines of code to implement that part of the test, usually a few (two to eight) lines of code. 
+     Place it immediately after the question.
+
+     Submit this Quiz (renamed) with code cut and pasted, ONLY text. DO NOT submit zips, binaries, libraries,
+     or anything other than text.
+
+     When any parts(questions) are complete, submit this test, you may make multiple submissions.
+
+     If you have computer, or other, problems, please raise your hand immediately.
+--->
+     If you understand and agree, please initial here:
+     __________PM_______
+
+ 2. Get files from this same folder.
+   
+ 3. Name your program with your name and last digits of your ID.
+
+ 4. The cloud provider is AWS (Amazon Web Services), all functionality possible should be implemented on that provider.
+    (Of course, displaying web pages through a browser and the user interface is "local")
+
+Show and submit code for the following:
+
+ 5. Show a web page and interface (which resides on the cloud provider) with your name and 
+    student ID in large font at the top of every web page displayed (for this quiz)
+--> show when showing part 8
+ 6. Upload the .csv data files to cloud service. Once they are in the cloud service you will import them into
+    SQL tables, created and indexed as necessary (for the following parts). 
+    The Education data set contains the name of the institution, the state, the average entering student SAT 
+    and the average debt of students graduating.
+    Note some of these attributes may be unknown (NULL) or not given for privacy reasons.
+    The Starbucks data set are most of the Starbucks in the world, with a city, state, country, latitude, longitude,
+    and time zone (minutes from GMT (Z-time)). Some names will not be in English (Latin) fonts.
+    If you wish, you may "normalize" all latitude, longitude values by adding 180.
+--> show when showing part 8
+
+You will create a web interface to query and assess time used for user specified queries, similar to your assignment.
+
+ 7. Create SQL tables with the information in both datasets.
+-> put code here
+python:
+@app.route('/createtable',methods=['POST'])
+def createtable():
+    
+    cursor = myConn.cursor()
+    file_name = 'C:/Users/Administrator/Desktop/Starbucks.csv'
+    droptbl = "DROP TABLE IF EXISTS PhotoApp.starbucks;"
+    cursor.execute(droptbl)
+    with open(file_name, 'rt', encoding= 'Latin-1') as csvfile:
+        reader = csv.reader(csvfile,quotechar='`')
+        headers = next(reader)
+    
+    start_time = time.time()
+    
+    sqlcreate="create table if not exists starbucks("
+    for i in range(0, len(headers)):
+         sqlcreate +=  headers[i] + " varchar(100),"
+    sqlcreate += "Idautonum int AUTO_INCREMENT PRIMARY KEY)"
+    cursor.execute(sqlcreate)
+    
+    uploadqry="""LOAD DATA LOCAL INFILE 'C:/Users/Administrator/Desktop/Starbucks.csv'
+          INTO TABLE starbucks FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r' IGNORE 1 ROWS;"""
+    cursor.execute(uploadqry)
+    myConn.commit()
+    
+    end_time = time.time()
+    query2 = "Select count(*) from starbucks"
+    cursor.execute(query2)
+    data = cursor.fetchall()
+    time_diff = end_time - start_time
+    cursor.close()
+    return render_template('index.html',crtimerds=time_diff,success = "Data inserted into database",nr = data[0])
+
+html:
+    <h2 style="text-align: center">LOAD DATA INTO DATABASE</h2>
+<form action="/createtable" method="post" enctype="multipart/form-data">
+        <strong>Upload data to database:</strong>
+       
+        <input type="submit" value="Upload"><br>
+         <p><b>Time taken: </b> {{ crtimerds }}  </p>
+         <p><b>No of rows inserted: </b>{{ nr }}  </p>
+        <p style = "color: red">{{success}}</p>
+    </form>
+<hr>
+
+
+ 8. Create a web interface to allow a user to list all Starbucks at a specified latitude, longitude, 
+    (within one degree), and show time used to perform that query.
+-> show us, put code here
+python:
+@app.route('/fetch',methods=['POST'])
+def fetch():
+    res=[]
+    lat = request.form['lat']
+    lon = request.form['lon']
+    
+    newlat=float(lat)+1
+    newlon =float(lon) -1
+    
+    cursor = myConn.cursor()
+    st = time.time()
+    
+    query1 = "SELECT Name FROM starbucks where Latitude between "+ str(lat)+" and "+str(newlat)+" and longitude between "+str(newlon)+" and "+str(lon)
+    
+    
+    cursor.execute(query1)
+    et = time.time()
+    
+    data = cursor.fetchall()
+    count=0
+    for row in data:
+        count=count+1
+        res.append("Place:"+row[0])
+    return render_template('index.html', res=res,count=count,tt = et-st)
+html:
+<form action="/fetch" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat" placeholder="Enter latitude value">
+  <input type="text" name="lon" placeholder="Enter longitude value">
+ <input type="submit" value="Submit">
+ <p><b>Time taken: </b> {{tt}}  </p>
+ <table>
+ <b>Row count: </b>{{ count }}
+     {% for col in res %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+ 9. Create a web interface to allow a user to list all Starbucks at a user specified range of latitude, longitude, 
+    (for example, latitude from -120 to -90, longitude from 40 to 50).
+    And show time used to perform that query.
+-> show us, put code here
+python:
+@app.route('/fetch',methods=['POST'])
+def fetch():
+    res=[]
+    lat = request.form['lat1']
+    lon = request.form['lon1']
+    
+    newlat=request.form['lat2']
+    newlon =request.form['lon2']
+    
+    cursor = myConn.cursor()
+    st = time.time()
+    
+    query1 = "SELECT Name FROM starbucks where Latitude between "+ str(lat)+" and "+str(newlat)+" and longitude between "+str(newlon)+" and "+str(lon)
+    
+    
+    cursor.execute(query1)
+    et = time.time()
+    
+    data = cursor.fetchall()
+    count=0
+    for row in data:
+        count=count+1
+        res.append("Place:"+row[0])
+    return render_template('index.html', res=res,count=count,tt = et-st)
+html:
+<form action="/fetch" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat1" placeholder="Enter latitude value">
+  <input type="text" name="lat2" placeholder="Enter latitude value">
+  <input type="text" name="lon1" placeholder="Enter longitude value">
+  <input type="text" name="lon2" placeholder="Enter longitude value">
+ <input type="submit" value="Submit">
+ <p><b>Time taken: </b> {{tt}}  </p>
+ <table>
+ <b>Row count: </b>{{ count }}
+     {% for col in res %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+<hr>
+ 10. Create a web interface to allow a user to give a SAT range (for example, SAT from 800 to 850),
+     and a city name and show the first 3 institution names that match and show 8 Starbucks in those
+     cities where those institutions are located. (for example for 1000 to 1200 SAT, 
+     and city Cincinnati there are 3 universities and many Starbucks (list 8), for SAT 1300 to 1400 
+     in the same city there are none). And show the time used to perform that query.
+-> show us, put code here
+<form action="/fetch" method="post" enctype="multipart/form-data">
+  <input type="text" name="sat1" placeholder="Enter sat  value">
+  <input type="text" name="sat2" placeholder="Enter sat value">
+  <input type="text" name="city" placeholder="Enter cit name">
+ 
+ <input type="submit" value="Submit">
+ <p><b>Time taken: </b> {{tt}}  </p>
+ <table>
+ <b>Row count: </b>{{ count }}
+     {% for col in res %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+     </form>
+PYTHON
+@app.route('/fetch',methods=['POST'])
+def fetch():
+    res=[]
+    lat = request.form['sat1']
+    lon = request.form['sat2']
+    
+    city=request.form['city']
+    
+    cursor = myConn.cursor()
+    st = time.time()
+    
+    query1 = "SELECT INSTNM FROM education  where SAT_AVG between %s AND %s and CITY = %s limit 3"
+    
+    
+    cursor.execute(query1,(lat,lon,city))
+    et = time.time()
+    
+    data = cursor.fetchall()
+    print (data)
+    count=0
+    for row in data:
+        count=count+1
+        res.append("Institute Name:"+row[0])
+    query2 = "SELECT Name FROM starbucks where city = %s LIMIT 8"
+    cursor.execute(query1,(lat,lon,city))
+    et = time.time()
+    
+    data = cursor.fetchall()
+    print (data)
+    count=0
+    for row in data:
+        count=count+1
+        res.append("Institute Name:"+row[0])
+    return render_template('index.html', res=res,count=count,tt = et-st)
+
+
+ 11. Create a web interface to allow a user to give a range of latitude, longitude and using the Starbucks
+     data find all cities in that range, and using a user specified country code list 
+     (for example, latitude from -160 to -150, longitude from 18 to 24, code "US")
+     list all only institution names and SAT scores for each within that area.
+     And show time used to perform that query.
+-> show us, put code here
+PYTHON:
+@app.route('/fetch',methods=['POST'])
+def fetch():
+    res=[]
+edu = []
+    lat = request.form['lat1']
+    lon = request.form['lon1']
+    
+    newlat=request.form['lat2']
+    newlon =request.form['lon2']
+    code = request.form['ccode']
+    cursor = myConn.cursor()
+    st = time.time()
+    
+    query1 = "SELECT City FROM starbucks where Latitude between %s AND %s and Longitude between %s and %s and CountryCode = %s"
+    
+    
+    cursor.execute(query1,(lat,newlat,lon,newlon,code))
+    et = time.time()
+    
+    data = cursor.fetchall()
+    count=0
+    for row in data:
+        count=count+1
+        res.append("Place:"+row[0])
+   query2 = "SELECT INSTNM, SAT_AVG FROM education where city = %s"
+    
+    
+    cursor.execute(query1,code)
+    et = time.time()
+    
+    data2 = cursor.fetchall()
+    count=0
+    for row in data2:
+        count=count+1
+        edu.append("Place:"+row[0])
+    return render_template('index.html', res=res,count=count,tt = et-st,edu = eu)
+html:
+<form action="/fetch" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat1" placeholder="Enter latitude value">
+  <input type="text" name="lat2" placeholder="Enter latitude value">
+  <input type="text" name="lon1" placeholder="Enter longitude value">
+  <input type="text" name="lon2" placeholder="Enter longitude value">
+   <input type="text" value="" name="ccode" placeholder="counry code">
+ <input type="submit" value="Submit">
+ <p><b>Time taken: </b> {{tt}}  </p>
+ <table>
+ <b>Row count: </b>{{ count }}
+     {% for col in res %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+<table>
+ <b>Row count: </b>{{ count }}
+     {% for col in edu%}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+
+     </form>
+<hr>
+
+ Bonus: Repeat part 11, using a memory caching mechanism (such as memcache or Redis), allowing a user to
+        give the number of times to query, allow caching to be enabled or not (turned off)
+        and show results, and show time used to perform that query.
+-> show us, put code here
+@app.route('/memc',methods=['POST'])
+def memcac():
+
+    lat = request.form['lat1']
+    lon = request.form['lon1']
+    cursor = myConn.cursor()
+    newlat=request.form['lat2']
+    newlon =request.form['lon2']
+    code = request.form['ccode']
+    result=[]
+    results = []
+    mc = "yes"
+    st = time.time()
+    result = memcach.get(lat+lon+newlat+newlon+code)
+    if not result:
+        sqlselect = "SELECT City FROM starbucks where Latitude between %s AND %s and Longitude between %s and %s and CountryCode = %s"
+        cursor.execute(sqlselect,(lat,newlat,lon,newlon,code))
+        result = cursor.fetchall()
+        mc = "no"
+        print(result)
+        
+        memcach.set(lat+lon+newlat+newlon+code, result)
+    et = time.time()
+    time_diff = et -st
+    cursor.close()
+    count = 0;
+    for row in result:
+        count = count + 1
+        # results.append(row)
+        
+        results.append(str(row[0]))
+    
+    return render_template('index.html', resu=results, countr = count,foundm=mc,tt = time_diff)
+HTML:
+<h2 style="text-align: center">MEMCACHE</h2>
+ <form action="/memc" method="post" enctype="multipart/form-data">
+  <input type="text" name="lat1" placeholder="Enter latitude value">
+  <input type="text" name="lat2" placeholder="Enter latitude value">
+  <input type="text" name="lon1" placeholder="Enter longitude value">
+  <input type="text" name="lon2" placeholder="Enter longitude value">
+   <input type="text" value="" name="ccode" placeholder="counry code">
+  
+ <input type="submit" value="Fetch results">
+ <p><b>Time taken: </b> {{tt}} </p>
+ <p><b>In memcache: </b> {{foundm}} </p>
+ <table>
+ <b>Row count: </b>{{ countr }}
+     {% for col in resu %}
+     <tr>
+
+              <td>{{ col }}</td>
+
+     </tr>
+      {% endfor %}
+ </table>
+
+ 
+
+
+
+ 12. When complete, return (send) this quiz
+     If you finish early, send this immediately, otherwise send between
+     the end of class and no more than 1 minute after that.
