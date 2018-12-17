@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homepage</title>
+</head>
+<body>
+<h2 style = "text-align:center">PRUTHVI RAJ MUTHYAM</h2>
+<h2 style = "text-align:center">1001400715</h2>
+<hr>
+
+    <form action="/login" method="post" enctype="multipart/form-data">
+        <strong>Login</strong>
+       <input type = "text" name = "uname" placeholder = "Enter username">
+       <input type = "text" name = "password" placeholder = "Enter password">
+        <input type="submit" value="login"><br>
+        
+         
+    </form>
+    <hr>
+        
+<form action="/add" method="post" enctype="multipart/form-data">
+   <input type = "text" name = "cno" placeholder = "Enter course no">
+    <input type = "text" name = "sno" placeholder="Enter section no">
+    <input type = "text" name = "name" placeholder="Enter name">
+
+ <input type="submit" value="submit">
+ <p>{{mess}}</p>
+</form>
+</body>
+</html>

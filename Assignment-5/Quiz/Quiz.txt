@@ -1,0 +1,207 @@
+
+--->
+Name:PRUTHVI RAJ MUTHYAM
+Last 4 digits ID:0715
+Computer IP address:
+CSE 6331, Cloud Computing					
+
+
+Quiz Q5, Spring 2018   (c) DL, UTA, 2018
+
+
+  C&P means cut and paste only those relevant lines from your program(s) into this quiz.
+
+  Summary: initial bottom question 1, rename this as described in question 3, show functionality 
+    through web interface of cloud implementation. Read (entire) quiz before writing.
+
+ 1.  I understand that I am on my honor during this quiz, I will not collaborate, use 
+     non-allowed sources, and I will not discuss or share this quiz with anyone for the next 
+     4 hours.
+     You MAY: use Google to search, use previous source code, 
+     YOU MAY NOT use:
+     Email, Facebook, Hangouts, IM, chats, Skype or ANY other human connection.
+
+     This is a timed test. Late tests will have points deducted for being late.
+     Very late tests will not be graded.
+
+     When you are complete, with any part, please raise your hand, so we may visually inspect that part.
+
+     The second part of the test, you should electronically submit, you will need to copy and paste 
+     only those lines of code to implement that part of the test, usually a few (two to eight) lines of code. 
+     Place it immediately after the question.
+
+     Submit this Quiz (renamed) with code cut and pasted, ONLY text. DO NOT submit zips, binaries, libraries,
+     or anything other than text.
+
+     When any parts(questions) are complete, submit this test, you may make multiple submissions.
+
+     If you have computer, or other, problems, please raise your hand immediately.
+--->
+     If you understand and agree, please initial here:
+     ___________PM______
+
+ 2. Get files from this same folder.
+   
+ 3. Name your program with your name and last digits of your ID.
+
+ 4. The cloud provider is MicroSoft Azure, all functionality possible should be implemented on that provider.
+    (Of course, displaying web pages through a browser and the user interface is "local")
+
+    Please show a web page and interface (which resides on the cloud provider) with your name and 
+    student ID in large font at the top of every web page displayed (for this quiz)
+
+ 5. Upload the .csv data files to cloud service. Some of those files in the cloud service you will import into
+    SQL tables, created and indexed as necessary (for the following parts). 
+    Classes contains course number, section, instructor and room.
+    The StateVotingClean (or StateVoting) are the states (in alphabetical order, from Alabama to Wyoming, 
+    don't include other information), total state population, voting population, number registered voters, 
+    percent registered, number voted, percent voted.
+    You may/will need to either create new tables, or modify table structure for the following.
+  
+Show and submit code for the following:
+
+ 6. There seems to be a "relationship" between population of a state and percent who vote, in that state.
+    Using the StateVoting information, create a simple web interface that allows a user to specify N, 
+    the number of clusters, and using the population (you may want to "normalize" to millions) and the percent voted,
+    use machine learning clustering, then list the centroids and number of states in each cluster. 
+-> show us, put code here
+python code:
+@app.route('/kmeans', methods=['POST'])
+def kmeans():
+    df = pd.read_csv('StateVoting.csv', encoding='latin1')
+
+    #col1 = request.form['col1']
+    #col2 = request.form['col2']
+    
+    # df[col1] = pd.to_numeric(df[col1], errors='coerce')
+    # df[col2] = pd.to_numeric(df[col2], errors='coerce')
+    # df.dropna()
+    f1 = df['TotalPop'].values
+    f2 = df['PercentVote'].values
+
+    X = np.array(list(zip(f1, f2)))
+
+    plt.rcParams['figure.figsize'] = (16, 9)
+    kmeans = KMeans(int(request.form['nclusters']))
+    kmeans = kmeans.fit(X)
+    
+    labels = kmeans.predict(X)
+    
+    centroids = kmeans.cluster_centers_
+
+    points = kmeans.labels_
+    count = []
+    #for i in range(len(X)):
+        #print("coordinate:", X[i], "label:", labels[i])
+    for k in range(0,int(request.form['nclusters'])):
+        count.append(len(np.where(points == k)[0]))
+    for i, col in zip(range(int(request.form['nclusters'])), colors):
+        groups = kmeans.labels_ == i
+        centroid = kmeans.cluster_centers_[i]
+        cen.append(centroid)
+        
+        plt.plot(X[groups, 0], X[groups, 1], 'w', markerfacecolor=col, marker='.')
+        plt.plot(centroid[0], centroid[1], '*', markerfacecolor=col, markeredgecolor='k', markersize=6)
+    plt.title('kmeans')
+    print(groups)
+    plt.grid(True)
+    return render_template('index.html',centroids = centroids,datacount = count)
+html code:
+<h5>Cluster Centroids</h5>
+
+<ol>
+        {% for fname in centroids %}
+        <li>{{ fname }}</li>
+        {% endfor %}
+</ol>
+    <h5>Data points in each cluster</h5>
+<ol>
+        {% for fname in datacount %}
+        <li>{{ fname }}</li>
+        {% endfor %}
+</ol>
+
+ 7. Show the information (clusters centroids) from previous question in different colors (your choice) in a scatter plot.
+-> show us, put code here
+@app.route('/kmeans', methods=['POST'])
+def kmeans():
+    df = pd.read_csv('StateVoting.csv', encoding='latin1')
+    f1 = df['TotalPop'].values
+    f2 = df['PercentVote'].values
+    X = np.array(list(zip(f1, f2)))
+    plt.rcParams['figure.figsize'] = (16, 9)
+    kmeans = KMeans(int(request.form['nclusters']))
+    kmeans = kmeans.fit(X)
+    
+    labels = kmeans.predict(X)
+    
+    centroids = kmeans.cluster_centers_
+
+    points = kmeans.labels_
+    cen = []
+    x = np.arange(30)
+    ys = [i+x+(i*x)**2 for i in range(30)]
+    colors = cm.rainbow(np.linspace(0, 1, len(ys)))
+    plt.figure()
+    colour=['blue','green','red','orange','cyan','black','pink','magenta']
+    for i, col in zip(range(int(request.form['nclusters'])), colors):
+        groups = kmeans.labels_ == i
+        centroid = kmeans.cluster_centers_[i]
+        cen.append(centroid)
+        
+        plt.plot(X[groups, 0], X[groups, 1], 'w', markerfacecolor=col, marker='.')
+        plt.plot(centroid[0], centroid[1], '*', markerfacecolor=col, markeredgecolor='k', markersize=6)
+    plt.title('kmeans')
+    print(groups)
+    plt.grid(True)
+    fno = int(random.randrange(500,1000))
+    plt.savefig('static/test'+str(fno)+'.png')
+    file = 'static/test'+str(fno)+'.png'
+    return render_template('scatter.html',fileno = file)
+html code:
+<img src = "{{fileno}}"/>
+ 8. We would like to be able to have an web interface that allows a user to select a course number, 
+    and a section number, enter her name in a text box, and "enroll" her in that class (enter her name into
+    the class list). (Using the "classes" information provided). Create that interface, and allow her to enroll.
+    Do not allow more than 30 students per class.
+-> show us, put code here
+python code:
+@app.route('/add',methods=['POST'])
+def loginStudent():
+    myConn = pymysql.connect(host='clusterdb.cxqwadsvd7dg.us-west-2.rds.amazonaws.com', user='pruthvi', passwd='raaz4114',
+                     db='clusterdb',local_infile=True)
+    cursor = myConn.cursor()
+    name = request.form['name']
+    cno = request.form['cno']
+    sno = request.form['sno']
+    if(cursor.rowcount>30):
+       sqlq2 = "select * from enrolled"
+       cursor.execute(sqlq2)
+       rows2 = cursor.fetchall()
+       message = "cannot add"
+    else:
+       message = "added class successfulyy"
+       sqlq = "INSERT INTO enrolled (section_no, course_no, name) VALUES (%s,%s,%s)"
+       cursor.execute(sqlq,(sno,cno,name))
+    rows = cursor.fetchall()
+    myConn.commit()
+    
+    
+    return render_template('index.html',mess = message)
+html code:
+<form action="/add" method="post" enctype="multipart/form-data">
+   <input type = "text" name = "cno" placeholder = "Enter course no">
+    <input type = "text" name = "sno" placeholder="Enter section no">
+    <input type = "text" name = "name" placeholder="Enter name">
+
+ <input type="submit" value="submit">
+ <p>{{mess}}</p>
+ 9. Allow a user to list all students enrolled in any specified class, or, all classes taught by 
+    a specific instructor (utilizing a web interface).
+-> show us, put code here
+
+
+
+ Done. When complete, return (send) this quiz
+     If you finish early, send this immediately, otherwise send between
+     the end of class and no more than 1 minute after that.
